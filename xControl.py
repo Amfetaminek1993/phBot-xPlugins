@@ -30,6 +30,7 @@ QtBind.createLabel(gui,'- INJECT #Opcode #Encrypted? #Data? : Inject packet\n- C
 tbxLeaders = QtBind.createLineEdit(gui,"",525,11,110,20)
 lstLeaders = QtBind.createList(gui,525,32,110,38)
 btnAddLeader = QtBind.createButton(gui,'btnAddLeader_clicked',"    Add   ",635,10)
+getxyz = QtBind.createButton(gui,'getpos_clicked',"    Get Position   ",635,260)
 btnRemLeader = QtBind.createButton(gui,'btnRemLeader_clicked',"     Remove     ",635,32)
 
 # ______________________________ Methods ______________________________ #
@@ -67,7 +68,15 @@ def loadConfigs():
 			if "Leaders" in data:
 				for nickname in data["Leaders"]:
 					QtBind.append(gui,lstLeaders,nickname)
-
+# Return pos in log
+def getpos_clicked():
+    current_position=get_position()
+    x = int(current_position['x'])
+    y = int(current_position['y'])
+    z = int(current_position['z'])
+    region = int(current_position['region'])
+    phBotChat.Party('SETPOS ' + str(x)+' '+str(y)+' '+str(region)+' '+str(z))
+    log('Plugin: Set position')
 # Add leader to the list
 def btnAddLeader_clicked():
 	if inGame:
@@ -139,9 +148,9 @@ def inject_teleport(source,destination):
 
 # Send message, Ex. "All Hello World!" or "private JellyBitz Hi!"
 def handleChatCommand(msg):
-	# Try to split message
-	args = msg.split(' ',1)
-	# Check if the format is correct and is not empty
+	# Try to s correct plit message
+	# 	args = msg.split(' ',1)
+	# 	# Check if the format isand is not empty
 	if len(args) != 2 or not args[0] or not args[1]:
 		return
 	# Split correctly the message
@@ -452,8 +461,10 @@ def handle_chat(t,player,msg):
 				p = get_position()
 				if compatibility:
 					set_training_position(p['region'], p['x'], p['y'])
+					set_training_script('')
 				else:
 					set_training_position(p['region'], p['x'], p['y'],p['z'])
+					set_training_script('')
 				log("Plugin: Training area set to current position (X:%.1f,Y:%.1f)"%(p['x'],p['y']))
 			else:
 				try:
@@ -465,9 +476,12 @@ def handle_chat(t,player,msg):
 					region = int(p[2]) if len(p) >= 3 else 0
 					if compatibility:
 						set_training_position(region,x,y)
+						set_training_script('')
+
 					else:
 						z = float(p[3]) if len(p) >= 4 else 0
 						set_training_position(region,x,y,z)
+						set_training_script('')
 					log("Plugin: Training area set to (X:%.1f,Y:%.1f)"%(x,y))
 				except:
 					log("Plugin: Wrong training area coordinates!")
